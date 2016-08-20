@@ -1,0 +1,27 @@
+%MACRO TREE(TRAIN, Y, Y_TYPE, X, ID, T, WEIGHTS, SEED, WD);
+title3 "TREE";
+title4 "FITTING: DECISION TREE SELECTION WITH VALIDATION SAMPLE";
+title5 "VARIABLE SELECTION: ALL ";
+
+proc arboretum data=&TRAIN;
+ performance multipass;
+ %IF &Y_TYPE=BIN %THEN %DO;
+  target &Y / level=BINARY; 
+  input &X;
+  assess measure=ASE;
+ %END;
+ %ELSE %IF &Y_TYPE=CTS %THEN %DO;
+  target &Y / level=INTERVAL; 
+   input &X;
+   assess measure=ASE;
+ %END; 
+ code file="&WD\f_TREE.sas";
+run;
+quit;
+data _null_;
+ file "&WD\f_TREE.sas" MOD;
+ %IF &Y_TYPE=BIN %THEN %DO; put "p_TREE = p_&Y.1 ;"; %END;
+ %ELSE %IF &Y_TYPE=CTS %THEN %DO; put "p_TREE = p_&Y ;"; %END;
+run;
+proc datasets lib=work; delete _: ; run; quit;
+%MEND TREE;

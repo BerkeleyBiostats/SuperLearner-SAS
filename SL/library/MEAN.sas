@@ -1,0 +1,16 @@
+%MACRO MEAN(TRAIN, Y, Y_TYPE, X, ID, T, WEIGHTS, SEED, WD);
+title3 "MEAN or NULL MODEL";
+title4 "FITTING: UNCONDITIONAL MEAN"; 
+title5 "VARIABLE SELECTION: ALL";
+proc means data=&TRAIN mean;
+ var &Y;
+ %IF &WEIGHTS ne %THEN %DO; weight &WEIGHTS; %END; 
+ output out=_mean mean=mean;
+run;
+data _null_;
+ set _mean ;
+ file "&WD\f_MEAN.sas";
+ put "p_MEAN =" mean ";" ;
+run;
+proc datasets lib=work; delete _: ; run; quit;
+%MEND MEAN;
